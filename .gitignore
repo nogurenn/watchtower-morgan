@@ -1,4 +1,3 @@
-application.conf
 production.conf
 
 *.class

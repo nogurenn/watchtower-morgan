@@ -1,0 +1,13 @@
+.git
+.gitignore
+.bloop
+.idea
+.metals
+.DS_STORE
+docker
+**/logs
+**/conf/*.conf.example
+**/production.conf
+**/target
+*/project
+README.md

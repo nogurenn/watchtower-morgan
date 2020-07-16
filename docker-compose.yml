@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/home/sbtuser/code
+    depends_on: 
+      - db
+    environment:
+      - PLAY_DB_HOST=db
+  db:
+    image: postgres:12.3-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./docker/db.env
+    volumes:
+      - ./docker/dev_postgres.conf:/var/lib/postgresql/data/postgresql.conf
+    command: postgres -c config_file=/var/lib/postgresql/data/postgresql.conf

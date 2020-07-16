@@ -17,8 +17,8 @@ libraryDependencies ++= Seq(
 
 )
 
-// TODO: use env vars before dockerizing
-flywayUrl := "jdbc:postgresql://127.0.0.1:5432/watchtower_morgan_dev"
+lazy val dbHost = sys.env.getOrElse("PLAY_DB_HOST", "127.0.0.1")
+flywayUrl := s"jdbc:postgresql://${dbHost}:5432/watchtower_morgan_dev"
 flywayUser := "watchtower_morgan_dev"
 flywayPassword := "watchtower_morgan_dev"
 flywayLocations := Seq("classpath:db/migration/default")

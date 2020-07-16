@@ -1,3 +1,9 @@
 include "application"
 
 play.http.secret.key=
+
+slick.dbs.default.db.properties.serverName=
+slick.dbs.default.db.properties.portNumber=
+slick.dbs.default.db.properties.databaseName=
+slick.dbs.default.db.properties.user=
+slick.dbs.default.db.properties.password=
