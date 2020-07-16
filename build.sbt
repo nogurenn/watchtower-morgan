@@ -10,7 +10,11 @@ scalaVersion := "2.13.3"
 libraryDependencies ++= Seq(
   guice,
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test,
-  "org.postgresql" % "postgresql" % "42.2.14"
+
+  // database driver + Slick ORM
+  "org.postgresql" % "postgresql" % "42.2.14",
+  "com.typesafe.play" %% "play-slick" % "5.0.0",
+
 )
 
 // TODO: use env vars before dockerizing
