@@ -2,7 +2,7 @@
 
 ## General
 
-This is an small REST backend built on Scala Play Framework, Flyway db migrations, and Slick db ORM. Database connection pooling is powered by HikariCP, while logging by Logback -- both included as Play batteries.
+This is a small REST backend built on Scala Play Framework, Flyway db migrations, and Slick db ORM. Database connection pooling is powered by HikariCP, while logging by Logback -- both included as Play batteries.
 
 Stripped down to the manageable minimum for our context, this project would only have the HTTP server, and db migrations and ORM.
 
@@ -29,10 +29,14 @@ $ brew install sbt scala postgresql
 
 # To start/stop the db server
 $ brew services start postgresql    #  ... stop postgresql
-$ 
 
+# go to project root
+$ cd watchtower-morgan
+
+$ sbt flywayMigrate     # first run
+$ sbt applyInitialData  # first run
+$ sbt run               # actual http server
 ```
-
 ## Running
 
 ```bash
@@ -53,4 +57,4 @@ $ docker exec -it watchtower-morgan_app_1 sbt applyInitialData
 
 ## Notes
 
-You may encounter two different warnings and one erratic shutdown error. All our just trivial quirks. No real impact on actual runtime and performance.
+You may encounter two different warnings and one erratic shutdown error. All are just trivial quirks of dependencies. No real impact on actual runtime and performance.
