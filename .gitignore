@@ -16,8 +16,10 @@ project/plugins/project/
 .scala_dependencies
 .worksheet
 .idea
-.metals
-.bloop
+.metals/
+.bloop/
+.ammonite/
+project/metals.sbt
 
 # Play
 logs/
