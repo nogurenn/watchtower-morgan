@@ -1,17 +1,20 @@
 name := """watchtower-morgan"""
 organization := "liwanag.glenn"
 
-version := "1.0-SNAPSHOT"
+version := "1.0"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, FlywayPlugin)
 
 scalaVersion := "2.13.3"
 
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
+libraryDependencies ++= Seq(
+  guice,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test,
+  "org.postgresql" % "postgresql" % "42.2.14"
+)
 
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "liwanag.glenn.controllers._"
-
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "liwanag.glenn.binders._"
+// TODO: use env vars before dockerizing
+flywayUrl := "jdbc:postgresql://127.0.0.1:5432/watchtower_morgan_dev"
+flywayUser := "watchtower_morgan_dev"
+flywayPassword := "watchtower_morgan_dev"
+flywayLocations := Seq("classpath:db/migration/default")
