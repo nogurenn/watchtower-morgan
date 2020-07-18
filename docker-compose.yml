@@ -19,5 +19,5 @@ services:
     env_file:
       - ./docker/db.env
     volumes:
-      - ./docker/dev_postgres.conf:/var/lib/postgresql/data/postgresql.conf
-    command: postgres -c config_file=/var/lib/postgresql/data/postgresql.conf
+      - ./docker/dev_postgres.conf:/temp/postgresql.conf
+    command: postgres -c config_file=/temp/postgresql.conf

@@ -8,4 +8,4 @@ USER sbtuser
 
 EXPOSE 9000
 
-CMD ["sbt", "run"]
+CMD ["sbt", "flywayMigrate", "runProd"]
