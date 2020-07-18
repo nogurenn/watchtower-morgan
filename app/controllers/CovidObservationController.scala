@@ -78,7 +78,7 @@ class CovidObservationController @Inject() (
 
   def getTopConfirmed(request: GetTopConfirmedRequest): Action[AnyContent] =
     Action.async { implicit req =>
-      logger.info("GET ${req.uri}")
+      logger.info(s"GET ${req.uri}")
 
       for {
         payload <- covidObservationDao.getAllByObservationDate(
