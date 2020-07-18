@@ -29,8 +29,7 @@ object CovidObservationController {
             QueryStringBindable
               .bindableOption[String]
               .bind("observation_date", params)
-          limit <-
-            QueryStringBindable.bindableOption[Int].bind("max_results", params)
+          limit <- QueryStringBindable.bindableOption[Int].bind("max_results", params)
         } yield {
           (observationDate, limit) match {
             case (Right(observationDate), Right(limit)) =>
@@ -87,17 +86,19 @@ class CovidObservationController @Inject() (
           request.limit
         )
       } yield {
+        val countries = payload.map(p =>
+          Json.obj(
+            "country" -> p.country,
+            "confirmed" -> p.confirmed,
+            "deaths" -> p.dead,
+            "recovered" -> p.recovered
+          )
+        )
+
         Ok(
           Json.obj(
             "observation_date" -> request.observationDate,
-            "countries" -> payload.map(p =>
-              Json.obj(
-                "country" -> p.country,
-                "confirmed" -> p.confirmed,
-                "deaths" -> p.dead,
-                "recovered" -> p.recovered
-              )
-            )
+            "countries" -> countries
           )
         )
       }
