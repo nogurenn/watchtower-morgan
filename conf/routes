@@ -4,7 +4,9 @@
 # ~~~~
 
 # An example controller showing a sample home page
-#/GET     /                           controllers.HomeController.index
+GET     /                           controllers.CovidObservationController.index
+
+GET     /top/confirmed              controllers.CovidObservationController.getTopConfirmed(request: controllers.CovidObservationController.GetTopConfirmedRequest)
 
 # Map static resources from the /public folder to the /assets URL path
-#GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
