@@ -73,7 +73,7 @@ class CovidObservationController @Inject() (
   def index(): Action[AnyContent] =
     Action { implicit req: Request[AnyContent] =>
       logger.info(s"GET ${req.uri}")
-      Ok(views.html.index())
+      Ok("")
     }
 
   def getTopConfirmed(request: GetTopConfirmedRequest): Action[AnyContent] =

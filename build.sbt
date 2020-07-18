@@ -13,7 +13,7 @@ scalaVersion := "2.13.3"
 libraryDependencies ++= Seq(
   guice,
   "net.codingwell" %% "scala-guice" % "4.2.11",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
 
   // database driver + Slick ORM
   "org.postgresql" % "postgresql" % "42.2.14",
