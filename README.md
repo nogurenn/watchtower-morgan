@@ -9,8 +9,6 @@ Stripped down to the manageable minimum for our context, this project would only
 For our purposes, it is not fully production-ready. Some engineering decisions in the project were deliberately not designed for production use and quality maintenance. This project was blowing up for a `GET` query.
 
 Dataset has one buggy datetime pattern. See below. Is it `M/d` or `d/M`? I decided to interpret `2/1` as `month/day` to remain consistent with the other present date formats.
-
-**IMPORTANT**: application warm-up may occur for a few reasons. Please watch stdout/logs if app is still processing your first API request. 
 ```
 2/1/2020 1:52
 ```
@@ -42,12 +40,33 @@ $ cd watchtower-morgan
 
 # apply db migrations
 $ sbt flywayMigrate
-
-$ sbt run # dev mode server
 ```
 
-## Running with Docker
+## Running
+Some notes when running the app for the first time.
+```bash
+# Logger will tell you once the app is ready to receive the relevant requests.
+# Watch out for the following three log outputs (in any order).
+#
+# INFO  ApplicationStart  Awaiting first-time seeding of covid_observations table.
+# ...
+# INFO  play.core.server.AkkaHttpServer  Listening for HTTP on /0:0:0:0:0:0:0:0:9000
+# ...
+# INFO  ApplicationStart  Inserted 15131 rows.
+#
+# Do note that the app processes requests asynchronously. If you perform the test GET request
+# while the bulk-insert of the seed is not yet done, you might get an empty response body.
+```
 
+### Running standalone
+```bash
+$ cd my/project_root/dir
+
+$ sbt runProd   # or sbt run for dev mode (cold start)
+```
+
+
+### Running with Docker
 ```bash
 $ cd my/project_root/dir
 
@@ -59,8 +78,5 @@ $ docker-compose up -d db
 # spin up app.
 $ docker-compose up app
 
-# the app is ready to accept API calls once it logs something like
-# INFO  play.core.server.AkkaHttpServer  Listening for HTTP on /0:0:0:0:0:0:0:0:9000
-
-$ curl localhost:9000/top/confirmed?observation_date=yyyy-mm-dd&max_results=2
+$ curl -i -H "Accept: application/json" "localhost:9000/top/confirmed?observation_date=2020-02-01&max_results=10" 
 ```
