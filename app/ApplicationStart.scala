@@ -1,27 +1,26 @@
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate, LocalDateTime, OffsetDateTime, ZoneId, ZonedDateTime}
+import java.time.{LocalDate, LocalDateTime}
 
+import daos.CovidObservationDao
 import javax.inject.{Inject, Singleton}
+import models.CovidObservation
 import play.api.Logging
-import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.inject.ApplicationLifecycle
-import slick.jdbc.JdbcProfile
 
-import scala.concurrent.{ExecutionContext, Future}
-import tables.Tables._
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.duration._
 import utils.StringParser._
 
+import scala.concurrent.duration.Duration
 import scala.io.Source
 import scala.util.{Failure, Success}
 
 @Singleton
-class ApplicationStart @Inject() (protected val dbConfigProvider: DatabaseConfigProvider,
-                                  lifecycle: ApplicationLifecycle)(implicit ec: ExecutionContext)
-  extends Logging with HasDatabaseConfigProvider[JdbcProfile] {
+class ApplicationStart @Inject()(lifecycle: ApplicationLifecycle,
+                                 covidObservationDao: CovidObservationDao)(implicit ec: ExecutionContext)
+  extends Logging {
 
   logger.info("Startup code initiated")
-
-  import profile.api._
 
   // Treat this as a one-off script to satisfy second requirement in an encapsulated manner:
   // 2. On startup of the web application, parse the CSV file and
@@ -31,9 +30,8 @@ class ApplicationStart @Inject() (protected val dbConfigProvider: DatabaseConfig
   // not required for constructor class, but define one here and call at end
   // to make startup more explicit
   def initialize(): Unit = {
-    val query = CovidObservations.length.result.flatMap {
+    covidObservationDao.count.map {
       case 0 =>
-        // populate table
         logger.info("Populating tables with initial data.")
 
         val datapoints = for (line <- Source.fromResource("covid_19_data.csv").getLines().drop(1)) yield { // drop header line
@@ -47,7 +45,7 @@ class ApplicationStart @Inject() (protected val dbConfigProvider: DatabaseConfig
             |[uuuu-MM-dd'T'H:m:s]
             |[uuuu-MM-dd H:m:s]""".stripMargin.replaceAll("\n", "")
 
-          CovidObservationsRow(
+          CovidObservation(
             0,
             LocalDate.parse(cols(1), DateTimeFormatter.ofPattern("MM/dd/uuuu")),  // 01/31/2020
             if (cols(2).isEmpty) None else Some(cols(2)),
@@ -59,20 +57,18 @@ class ApplicationStart @Inject() (protected val dbConfigProvider: DatabaseConfig
           )
         }
 
-        (CovidObservations ++= datapoints.to(Iterable)).map {
-          case Some(n) =>
-            logger.info(s"Successfully seeded $n rows.")
-            n
-          case None =>
-            logger.error("A part of the required seed failed to be inserted.")
-            0
-        }
-      case _ =>
-        logger.info("Initial data already present. Seeding skipped.")
-        DBIO.successful(0)
-    }
+        val insertCount: Future[Int] = covidObservationDao.batchInsert(datapoints.toSeq)
+        logger.info("Awaiting first-time seeding of covid_observations table.")
 
-    db.run(query)
+        insertCount onComplete {
+          case Success(n) => logger.info(s"Seeded covid_observations with $n rows.")
+          case Failure(_) => logger.warn("Failed to insert seed data.")
+        }
+
+        Await.result(insertCount, 5.seconds)
+      case _ =>
+        logger.info("Table to seed is not empty. Seeding skipped.")
+    }
   }
 
   // Shut-down hook
