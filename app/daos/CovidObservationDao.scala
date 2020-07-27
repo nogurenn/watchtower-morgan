@@ -17,7 +17,7 @@ trait CovidObservationDao {
   def getAllByObservationDate(
       observationDate: Option[LocalDate] = None,
       limit: Option[Int]
-  ): Future[Seq[CovidObservation]]
+  ): Future[Seq[(String, Int, Int, Int)]]
 
   def count: Future[Int]
 
@@ -74,14 +74,24 @@ class CovidObservationDaoImpl @Inject() (
   def getAllByObservationDate(
       observationDate: Option[LocalDate] = None,
       limit: Option[Int] = None
-  ): Future[Seq[CovidObservation]] = {
+  ): Future[Seq[(String, Int, Int, Int)]] = {
     logger.info(
       s"getAllByObservationDate: ${observationDate.toString},${limit.toString}"
     )
     db.run {
       val filtered = CovidObservations
         .filterIf(observationDate.isDefined)(_.observationDate === observationDate.get)
-        .sortBy(_.confirmed.desc)
+        .groupBy(_.country)
+        .map {
+          case (country, r) =>
+            (
+              country,
+              r.map(_.confirmed).sum.getOrElse(0),
+              r.map(_.dead).sum.getOrElse(0),
+              r.map(_.recovered).sum.getOrElse(0)
+            )
+        }
+        .sortBy(_._2.desc)
 
       val limited = limit match {
         case None    => filtered
@@ -89,7 +99,7 @@ class CovidObservationDaoImpl @Inject() (
       }
 
       limited.result
-    }.map(_.map(rowToModel))
+    }
   }
 
   def count: Future[Int] = db.run(CovidObservations.length.result)

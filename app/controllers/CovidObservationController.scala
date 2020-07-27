@@ -86,19 +86,19 @@ class CovidObservationController @Inject() (
           request.limit
         )
       } yield {
-        val countries = payload.map(p =>
+        val statsByCountry = payload.map(p =>
           Json.obj(
-            "country" -> p.country,
-            "confirmed" -> p.confirmed,
-            "deaths" -> p.dead,
-            "recovered" -> p.recovered
+            "country" -> p._1,
+            "confirmed" -> p._2,
+            "deaths" -> p._3,
+            "recovered" -> p._4
           )
         )
 
         Ok(
           Json.obj(
             "observation_date" -> request.observationDate,
-            "countries" -> countries
+            "countries" -> statsByCountry
           )
         )
       }
